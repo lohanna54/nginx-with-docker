@@ -1,0 +1,39 @@
+version: '3.3'
+
+services:
+  app:
+    build:
+      context: ./app
+    volumes:
+      - ./app:/usr/src/app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: mydb
+    depends_on:
+      - mysql
+    ports:
+      - "3000:3000"
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
+volumes:
+  mysql-data:
